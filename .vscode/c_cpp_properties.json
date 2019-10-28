@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/Inc",
+                "${workspaceFolder}/Drivers/CMSIS/Include",
+                "${workspaceFolder}/Drivers/STM32F0xx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F0xx/Include",
+                "/usr/local/arm-none-eabi/include",
+                "${workspaceFolder}/Drivers/qpc/include",
+                "${workspaceFolder}/Drivers/qpc/src",
+                "${workspaceFolder}/Drivers/qpc/ports/arm-cm/qv/arm",
+                "D:/App/armgcc/lib/gcc/arm-none-eabi/5.4.1/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "STM32F030x6",
+                "USE_FULL_LL_DRIVER"
+            ],
+            "compilerPath": "${env:ARMGCC_HOME}/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x86"
+        }
+    ],
+    "version": 4
+}
