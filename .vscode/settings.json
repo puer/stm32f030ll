@@ -36,7 +36,8 @@
     "type_traits": "cpp",
     "list.h": "c",
     "stm32f0xx_ll_adc.h": "c",
-    "system_stm32f0xx.h": "c"
+    "system_stm32f0xx.h": "c",
+    "math.h": "c"
   },
   "cortex-debug.openocdPath": "openocd"
 }

@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "adc.h"
+#include "math.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -118,6 +120,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    double m = log10(34.1212) / log10(2.718281828459045);
+    printf("%f", m);
   }
   /* USER CODE END 3 */
 }
