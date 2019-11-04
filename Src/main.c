@@ -469,7 +469,8 @@ int _write(int file, char *ptr, int len)
   for (i = 0; i < len; i++)
   {
     LL_USART_TransmitData8(USART1, (*ptr++));
-    while (!LL_USART_IsActiveFlag_TC(USART1))
+
+    while (!LL_USART_IsActiveFlag_TXE(USART1))
       ;
   }
   return len;
