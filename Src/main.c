@@ -46,7 +46,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern uint32_t ticks;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,6 +104,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
+  LL_SYSTICK_EnableIT();
   start_adc_dma(ADC1, DMA1);
   LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH1);
   LL_TIM_EnableCounter(TIM3);
@@ -139,13 +140,12 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  LL_RCC_HSI_Enable();
+  LL_RCC_HSE_Enable();
 
-  /* Wait till HSI is ready */
-  while (LL_RCC_HSI_IsReady() != 1)
+  /* Wait till HSE is ready */
+  while (LL_RCC_HSE_IsReady() != 1)
   {
   }
-  LL_RCC_HSI_SetCalibTrimming(16);
   LL_RCC_HSI14_Enable();
 
   /* Wait till HSI14 is ready */
@@ -153,7 +153,7 @@ void SystemClock_Config(void)
   {
   }
   LL_RCC_HSI14_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_6);
   LL_RCC_PLL_Enable();
 
   /* Wait till PLL is ready */
@@ -168,7 +168,8 @@ void SystemClock_Config(void)
   while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   }
-  LL_Init1msTick(48000000);
+  // LL_Init1msTick(48000000);
+  LL_InitTick(48000000, 100000U);
   LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
   LL_SetSystemCoreClock(48000000);
   LL_RCC_HSI14_EnableADCControl();
@@ -233,9 +234,10 @@ static void MX_ADC_Init(void)
   /** Configure Regular Channel 
   */
   LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_0);
+
   /** Configure Regular Channel 
   */
-  LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_1);
+
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   ADC_InitStruct.Clock = LL_ADC_CLOCK_ASYNC;
@@ -250,7 +252,7 @@ static void MX_ADC_Init(void)
   ADC_REG_InitStruct.Overrun = LL_ADC_REG_OVR_DATA_PRESERVED;
   LL_ADC_REG_Init(ADC1, &ADC_REG_InitStruct);
   LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
-  LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_239CYCLES_5);
+  LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_55CYCLES_5);
   LL_ADC_DisableIT_EOC(ADC1);
   LL_ADC_DisableIT_EOS(ADC1);
   /* USER CODE BEGIN ADC_Init 2 */
@@ -458,6 +460,7 @@ static void MX_GPIO_Init(void)
 {
 
   /* GPIO Ports Clock Enable */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
 }
 

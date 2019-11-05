@@ -10,6 +10,7 @@ void start_adc_dma(ADC_TypeDef *adc, DMA_TypeDef *dma)
 
     LL_DMA_SetMemoryAddress(DMA1, LL_DMA_CHANNEL_1, (uint32_t)ADC_ConvertedValue);
 
+    LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
     LL_ADC_StartCalibration(adc);

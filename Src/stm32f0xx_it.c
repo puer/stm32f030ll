@@ -23,6 +23,8 @@
 #include "stm32f0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "adc.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +44,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+uint32_t ticks = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,7 +126,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+  ticks++;
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -145,11 +147,26 @@ void SysTick_Handler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-
+  static uint8_t count = 0;
+  uint16_t ave = 0;
   /* USER CODE END DMA1_Channel1_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
-
+  if (LL_DMA_IsActiveFlag_TC1(DMA1))
+  {
+    LL_DMA_ClearFlag_TC1(DMA1);
+    count++;
+    if (count == ADBufferSize)
+    {
+      count = 0;
+      // do average and pass average to next handler;
+      for (int i = 0; i < ADBufferSize; i++)
+      {
+        ave += ADC_ConvertedValue[i];
+      }
+      ave /= ADBufferSize;
+    }
+  }
   /* USER CODE END DMA1_Channel1_IRQn 1 */
 }
 
