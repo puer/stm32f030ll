@@ -148,7 +148,8 @@ void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
   static uint8_t count = 0;
-  uint16_t ave = 0;
+  uint16_t avech0 = 0;
+  uint16_t avech1 = 0;
   /* USER CODE END DMA1_Channel1_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
@@ -162,9 +163,18 @@ void DMA1_Channel1_IRQHandler(void)
       // do average and pass average to next handler;
       for (int i = 0; i < ADBufferSize; i++)
       {
-        ave += ADC_ConvertedValue[i];
+        if ((i & 0x01) == 0)
+        {
+          avech0 += ADC_ConvertedValue[i];
+        }
+        else
+        {
+          avech1 += ADC_ConvertedValue[i];
+        }
       }
-      ave /= ADBufferSize;
+      avech0 /= (ADBufferSize / 2);
+      avech1 /= (ADBufferSize / 2);
+      printf("CH0 - [%d]  CH1 - [%d]\n", avech0, avech1);
     }
   }
   /* USER CODE END DMA1_Channel1_IRQn 1 */
@@ -179,7 +189,7 @@ void TIM14_IRQHandler(void)
 
   /* USER CODE END TIM14_IRQn 0 */
   /* USER CODE BEGIN TIM14_IRQn 1 */
-  printf("TIM14 Occurs\n");
+  // printf("TIM14 Occurs\n");
   /* USER CODE END TIM14_IRQn 1 */
 }
 

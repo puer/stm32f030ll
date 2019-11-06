@@ -3,7 +3,7 @@
 #include "stm32f0xx_ll_adc.h"
 #include "stm32f0xx_ll_dma.h"
 
-#define ADBufferSize 16
+#define ADBufferSize 32
 extern uint16_t ADC_ConvertedValue[ADBufferSize];
 extern void start_adc_dma(ADC_TypeDef *adc, DMA_TypeDef *dma);
 
