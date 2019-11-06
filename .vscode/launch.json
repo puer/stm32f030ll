@@ -29,7 +29,7 @@
       },
       "armToolchainPath": "${env:ARMGCC_HOME}/bin",
       "configFiles": [
-        "${env:OPENOCD_HOME}/scripts/interface/stlink-v2.cfg",
+        "${env:OPENOCD_HOME}/scripts/interface/stlink-v2-1.cfg",
         "${env:OPENOCD_HOME}/scripts/target/stm32f0x.cfg"
       ]
     }
