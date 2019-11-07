@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "adc.h"
-#include "math.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -74,12 +73,10 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  
 
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
@@ -133,41 +130,37 @@ void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 
-  if(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
+  if (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
   {
-  Error_Handler();  
+    Error_Handler();
   }
   LL_RCC_HSE_Enable();
 
-   /* Wait till HSE is ready */
-  while(LL_RCC_HSE_IsReady() != 1)
+  /* Wait till HSE is ready */
+  while (LL_RCC_HSE_IsReady() != 1)
   {
-    
   }
   LL_RCC_HSI14_Enable();
 
-   /* Wait till HSI14 is ready */
-  while(LL_RCC_HSI14_IsReady() != 1)
+  /* Wait till HSI14 is ready */
+  while (LL_RCC_HSI14_IsReady() != 1)
   {
-    
   }
   LL_RCC_HSI14_SetCalibTrimming(16);
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_6);
   LL_RCC_PLL_Enable();
 
-   /* Wait till PLL is ready */
-  while(LL_RCC_PLL_IsReady() != 1)
+  /* Wait till PLL is ready */
+  while (LL_RCC_PLL_IsReady() != 1)
   {
-    
   }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
-   /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+  /* Wait till System clock is ready */
+  while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
-  
   }
   LL_Init1msTick(48000000);
   LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
@@ -195,7 +188,7 @@ static void MX_ADC_Init(void)
 
   /* Peripheral clock enable */
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
-  
+
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   /**ADC GPIO Configuration  
   PA0   ------> ADC_IN0
@@ -218,7 +211,7 @@ static void MX_ADC_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* ADC DMA Init */
-  
+
   /* ADC Init */
   LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_1, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
@@ -266,7 +259,6 @@ static void MX_ADC_Init(void)
   /* USER CODE BEGIN ADC_Init 2 */
 
   /* USER CODE END ADC_Init 2 */
-
 }
 
 /**
@@ -322,7 +314,6 @@ static void MX_TIM3_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
 }
 
 /**
@@ -343,7 +334,7 @@ static void MX_USART1_UART_Init(void)
 
   /* Peripheral clock enable */
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_USART1);
-  
+
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   /**USART1 GPIO Configuration  
   PA9   ------> USART1_TX
@@ -387,13 +378,12 @@ static void MX_USART1_UART_Init(void)
 
   LL_USART_EnableIT_RXNE(USART1);
   /* USER CODE END USART1_Init 2 */
-
 }
 
 /** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
 
   /* Init with LL driver */
@@ -404,7 +394,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   NVIC_SetPriority(DMA1_Channel1_IRQn, 1);
   NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-
 }
 
 /**
@@ -418,70 +407,9 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-
 }
 
 /* USER CODE BEGIN 4 */
-static uint16_t ave[3];
-
-int FAN_Adjust_PWM(void)
-{
-  static uint16_t print_throttle = 0;
-  ave[0] = 0;
-  ave[1] = 0;
-  ave[2] = 0;
-
-  // do average and pass average to next handler;
-  for (int i = 0; i < ADBufferSize / 3; i++)
-  {
-    int m = 0;
-    for (int j = i * 3; j < (i + 1) * 3; j++, m++)
-    {
-      ave[m] += ADC_ConvertedValue[j];
-    }
-  }
-
-  for (int j = 0; j < 3; j++)
-  {
-    ave[j] /= (ADBufferSize / 3);
-    ;
-  }
-
-  // ave[0]  NTC ave[1] SET ave[2] FB
-  if (ave[0] == 0)
-  {
-    ave[0] = 1;
-  }
-  double ntc = 3950 / (log(ave[0] / (double)(4096 - ave[0])) + 12.49334233271006f);
-  double set = 60.0f * ave[1] / 4096 + 293.15;
-
-  if (print_throttle-- == 0)
-  {
-    print_throttle = 256;
-    // printf("NTC - [%d]  SET - [%d]", (int)ntc, (int)set);
-    // printf("NTC - [%d]  SET - [%d]  FB - [%d] - [%d] \n", ave[0], ave[1], ave[2], (int)log((double)100));
-    // printf("A");
-  }
-
-  if (ntc > set)
-  {
-    // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
-    uint16_t power = (ntc - set) * 6 + 77;
-    if (power > 255)
-    {
-      power = 255;
-    }
-
-    LL_TIM_OC_SetCompareCH1(TIM3, power);
-  }
-  else if (set - 5 > ntc)
-  {
-    // Stop the fan
-    LL_TIM_OC_SetCompareCH1(TIM3, 0);
-  }
-
-  return SUCCESS;
-}
 
 int _write(int file, char *ptr, int len)
 {
@@ -510,7 +438,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -519,7 +447,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(char *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

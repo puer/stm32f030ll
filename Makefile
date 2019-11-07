@@ -37,6 +37,7 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Src/adc.c \
+Src/fan.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_gpio.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_adc.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_dma.c \
