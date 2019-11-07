@@ -148,7 +148,7 @@ int FAN_Adjust_PWM(void)
     {
         print_throttle = 256;
         // printf("NTC - [%d]  SET - [%d]", (int)ntc, (int)set);
-        printf("NTC - [%dC/%d]  SET - [%dC/%d] PWR - [%d%%/%lu] FB - [%d%%/%d] \n",
+        printf("NTC - [%dC/%d]  SET - [%dC/%d] PWR - [%ld%%/%lu] FB - [%d%%/%d] \n",
                ntc, ave[0],
                (int)set, ave[1],
                LL_TIM_OC_GetCompareCH1(TIM3) * 100 / 256, LL_TIM_OC_GetCompareCH1(TIM3),
