@@ -7,5 +7,5 @@
 
 // 30% power
 #define POWER_MIN 0.3
-
+#define POWER_LINEAR_RANGE 30
 #endif // __FAN_H

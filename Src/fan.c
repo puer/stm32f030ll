@@ -6,6 +6,9 @@
 
 static uint16_t ave[3];
 
+// Generated according to NTC formula Rt = R0 * exp( B* (1/Tt - 1/T0)).
+// R0 = 10000, T = 298.15 (Kelvin), B = 3950
+// Elimated using of exp or log in math.h to reduce prog. size.
 static const uint16_t ntc_3950_tbl[NTC_TBL_CNT] = {
     3594, 3570, 3545, 3520, 3494, 3467, 3440, 3412, 3382, 3353,
     3322, 3291, 3259, 3226, 3193, 3159, 3124, 3089, 3053, 3016,
@@ -32,28 +35,69 @@ static uint16_t adc_to_celsius(uint16_t av)
     }
     return 0xffff;
 }
-//====================================================================================
-// Description: Bubble sort min to max
-//====================================================================================
-void Sort_values(uint16_t A[], uint8_t L)
-{
-    uint8_t i = 0;
-    uint8_t status = 1;
+// //====================================================================================
+// // Description: Bubble sort min to max
+// //====================================================================================
+// void Sort_values(uint16_t A[], uint8_t L)
+// {
+//     uint8_t i = 0;
+//     uint8_t status = 1;
 
-    while (status == 1)
+//     while (status == 1)
+//     {
+//         status = 0;
+//         for (i = 0; i < L - 1; i++)
+//         {
+//             if (A[i] > A[i + 1])
+//             {
+//                 A[i] ^= A[i + 1];
+//                 A[i + 1] ^= A[i];
+//                 A[i] ^= A[i + 1];
+//                 status = 1;
+//             }
+//         }
+//     }
+// }
+uint16_t tmp;
+void qsort(uint16_t a[], int lo0, int hi0)
+{
+    int lo = lo0;
+    int hi = hi0;
+    int mid;
+    if (hi0 > lo0)
     {
-        status = 0;
-        for (i = 0; i < L - 1; i++)
+        mid = a[(hi0 + lo0) / 2];
+        while (lo <= hi)
         {
-            if (A[i] > A[i + 1])
+            while ((lo < hi0) && (a[lo] < mid))
+                ++lo;
+
+            while ((hi > lo0) && (a[hi] > mid))
+                --hi;
+
+            if (lo <= hi)
             {
-                A[i] ^= A[i + 1];
-                A[i + 1] ^= A[i];
-                A[i] ^= A[i + 1];
-                status = 1;
+                // swap(a, lo, hi);
+                // a[lo] ^= a[hi];
+                // a[hi] ^= a[lo];
+                // a[lo] ^= a[hi];
+                tmp = a[lo];
+                a[lo] = a[hi];
+                a[hi] = tmp;
+                ++lo;
+                --hi;
             }
         }
+        if (lo0 < hi)
+        {
+            qsort(a, lo0, hi);
+        }
+        if (lo < hi0)
+        {
+            qsort(a, lo, hi0);
+        }
     }
+    return;
 }
 
 int FAN_Adjust_PWM(void)
@@ -75,9 +119,12 @@ int FAN_Adjust_PWM(void)
         }
     }
 
-    Sort_values(ADC_Value, count);
-    Sort_values(&ADC_Value[count], count);
-    Sort_values(&ADC_Value[2 * count], count);
+    // Sort_values(ADC_Value, count);
+    // Sort_values(&ADC_Value[count], count);
+    // Sort_values(&ADC_Value[2 * count], count);
+    qsort(ADC_Value, 0, count - 1);
+    qsort(&ADC_Value[count], 0, count - 1);
+    qsort(&ADC_Value[count * 2], 0, count - 1);
 
     // do average and pass average to next handler;
     for (int i = samples / 2; i < count - samples / 2; i++)
@@ -94,10 +141,6 @@ int FAN_Adjust_PWM(void)
     }
 
     // ave[0]  NTC ave[1] SET ave[2] FB
-    if (ave[0] == 0)
-    {
-        ave[0] = 1;
-    }
     uint16_t ntc = adc_to_celsius(ave[0]);
     double set = SET_RANGE * ave[1] / 4096.0 + SET_MIN;
 
@@ -105,7 +148,11 @@ int FAN_Adjust_PWM(void)
     {
         print_throttle = 256;
         // printf("NTC - [%d]  SET - [%d]", (int)ntc, (int)set);
-        printf("NTC - [%d]  SET - [%d]  FB - [%d] \n", ntc, (int)set, ave[2]);
+        printf("NTC - [%dC/%d]  SET - [%dC/%d] PWR - [%d%%/%lu] FB - [%d%%/%d] \n",
+               ntc, ave[0],
+               (int)set, ave[1],
+               LL_TIM_OC_GetCompareCH1(TIM3) * 100 / 256, LL_TIM_OC_GetCompareCH1(TIM3),
+               ave[2] * 100 / 4096, ave[2]);
         // printf("A");
     }
 
@@ -113,7 +160,7 @@ int FAN_Adjust_PWM(void)
     {
         // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
         // 256 * 0.7 / 30, linear in 30 celsius
-        uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / 30) + 256 * POWER_MIN;
+        uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
         if (power > 255)
         {
             power = 255;
