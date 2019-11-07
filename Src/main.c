@@ -73,10 +73,12 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  
 
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
@@ -130,37 +132,42 @@ void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 
-  if (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
+  if(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
   {
-    Error_Handler();
+  Error_Handler();  
   }
-  LL_RCC_HSE_Enable();
+  LL_RCC_HSI_Enable();
 
-  /* Wait till HSE is ready */
-  while (LL_RCC_HSE_IsReady() != 1)
+   /* Wait till HSI is ready */
+  while(LL_RCC_HSI_IsReady() != 1)
   {
+    
   }
+  LL_RCC_HSI_SetCalibTrimming(16);
   LL_RCC_HSI14_Enable();
 
-  /* Wait till HSI14 is ready */
-  while (LL_RCC_HSI14_IsReady() != 1)
+   /* Wait till HSI14 is ready */
+  while(LL_RCC_HSI14_IsReady() != 1)
   {
+    
   }
   LL_RCC_HSI14_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_6);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
   LL_RCC_PLL_Enable();
 
-  /* Wait till PLL is ready */
-  while (LL_RCC_PLL_IsReady() != 1)
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
   {
+    
   }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
-  /* Wait till System clock is ready */
-  while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+   /* Wait till System clock is ready */
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
+  
   }
   LL_Init1msTick(48000000);
   LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
@@ -188,7 +195,7 @@ static void MX_ADC_Init(void)
 
   /* Peripheral clock enable */
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_ADC1);
-
+  
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   /**ADC GPIO Configuration  
   PA0   ------> ADC_IN0
@@ -211,7 +218,7 @@ static void MX_ADC_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* ADC DMA Init */
-
+  
   /* ADC Init */
   LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_1, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
@@ -259,6 +266,7 @@ static void MX_ADC_Init(void)
   /* USER CODE BEGIN ADC_Init 2 */
 
   /* USER CODE END ADC_Init 2 */
+
 }
 
 /**
@@ -286,12 +294,11 @@ static void MX_TIM3_Init(void)
   /* USER CODE END TIM3_Init 1 */
   TIM_InitStruct.Prescaler = 0;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 255;
+  TIM_InitStruct.Autoreload = 256;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM3, &TIM_InitStruct);
-  LL_TIM_EnableARRPreload(TIM3);
-  LL_TIM_OC_EnablePreload(TIM3, LL_TIM_CHANNEL_CH1);
-  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
+  LL_TIM_DisableARRPreload(TIM3);
+  TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_FROZEN;
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.CompareValue = 0;
@@ -314,6 +321,7 @@ static void MX_TIM3_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 }
 
 /**
@@ -334,7 +342,7 @@ static void MX_USART1_UART_Init(void)
 
   /* Peripheral clock enable */
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_USART1);
-
+  
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   /**USART1 GPIO Configuration  
   PA9   ------> USART1_TX
@@ -378,12 +386,13 @@ static void MX_USART1_UART_Init(void)
 
   LL_USART_EnableIT_RXNE(USART1);
   /* USER CODE END USART1_Init 2 */
+
 }
 
 /** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void)
+static void MX_DMA_Init(void) 
 {
 
   /* Init with LL driver */
@@ -394,6 +403,7 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   NVIC_SetPriority(DMA1_Channel1_IRQn, 1);
   NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
 }
 
 /**
@@ -405,8 +415,8 @@ static void MX_GPIO_Init(void)
 {
 
   /* GPIO Ports Clock Enable */
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+
 }
 
 /* USER CODE BEGIN 4 */
@@ -438,7 +448,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -447,7 +457,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(char *file, uint32_t line)
-{
+{ 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

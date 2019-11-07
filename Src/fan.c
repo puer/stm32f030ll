@@ -99,7 +99,7 @@ int FAN_Adjust_PWM(void)
         ave[0] = 1;
     }
     uint16_t ntc = adc_to_celsius(ave[0]);
-    double set = 60.0f * ave[1] / 4096 + 25;
+    double set = SET_RANGE * ave[1] / 4096.0 + SET_MIN;
 
     if (print_throttle-- == 0)
     {
@@ -113,7 +113,7 @@ int FAN_Adjust_PWM(void)
     {
         // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
         // 256 * 0.7 / 30, linear in 30 celsius
-        uint16_t power = (ntc - set) * 6 + 77;
+        uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / 30) + 256 * POWER_MIN;
         if (power > 255)
         {
             power = 255;
