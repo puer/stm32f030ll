@@ -142,17 +142,24 @@ int FAN_Adjust_PWM(void)
 
     // ave[0]  NTC ave[1] SET ave[2] FB
     uint16_t ntc = adc_to_celsius(ave[0]);
-    double set = SET_RANGE * ave[1] / 4096.0 + SET_MIN;
+    // double set = SET_RANGE * ave[1] / 4096.0 + SET_MIN;
+    uint16_t set = SET_RANGE * ave[1] / 4096 + SET_MIN;
 
     if (print_throttle-- == 0)
     {
         print_throttle = 256;
         // printf("NTC - [%d]  SET - [%d]", (int)ntc, (int)set);
-        printf("NTC - [%dC/%d]  SET - [%dC/%d] PWR - [%ld%%/%lu] FB - [%d%%/%d] \n",
-               ntc, ave[0],
-               (int)set, ave[1],
-               LL_TIM_OC_GetCompareCH1(TIM3) * 100 / 256, LL_TIM_OC_GetCompareCH1(TIM3),
-               ave[2] * 100 / 4096, ave[2]);
+        // printf("NTC - [%dC/%d]  SET - [%dC/%d] PWR - [%ld%%/%lu] FB - [%d%%/%d] \n",
+        //        ntc, ave[0],
+        //        (int)set, ave[1],
+        //        LL_TIM_OC_GetCompareCH1(TIM3) * 100 / 256, LL_TIM_OC_GetCompareCH1(TIM3),
+        //        ave[2] * 100 / 4096, ave[2]);
+        extern int _write(int file, char *ptr, int len);
+        _write(0, "__LL_FAN_", 9);
+        _write(0, (char *)&ntc, sizeof(ntc));
+        _write(0, (char *)&ave[0], sizeof(ave[0]));
+        _write(0, (char *)&set, sizeof(set));
+        _write(0, (char *)&ave[1], sizeof(ave[1]));
         // printf("A");
     }
 
@@ -160,7 +167,9 @@ int FAN_Adjust_PWM(void)
     {
         // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
         // 256 * 0.7 / 30, linear in 30 celsius
-        uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
+        // uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
+        // elimate float computation
+        uint16_t power = (ntc - set) * 6 + 77;
         if (power > 255)
         {
             power = 255;
