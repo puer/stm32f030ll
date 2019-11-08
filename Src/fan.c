@@ -158,9 +158,9 @@ int FAN_Adjust_PWM(void)
 
     if (ntc > set)
     {
-        // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
-        // 256 * 0.7 / 30, linear in 30 celsius
-        uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
+        // adj 77 is base vale of 30% power of fan (256 * 50% = 77).
+        // 256 * 0.5 / 30, linear in 30 celsius
+        uint16_t power = (ntc - set) * (128 / POWER_LINEAR_RANGE) + 128;
         if (power > 255)
         {
             power = 255;
