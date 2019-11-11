@@ -180,7 +180,7 @@ int FAN_Adjust_PWM(void)
         // 256 * 0.7 / 30, linear in 30 celsius
         // uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
         // elimate float computation
-        uint16_t power = (ntc - set) * 6 + 102;
+        uint16_t power = (ntc - set) * POWER_LINEAR_FACTOR + POWER_MIN;
         if (power > 255)
         {
             power = 255;

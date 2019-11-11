@@ -6,6 +6,9 @@
 #define SET_RANGE 60
 
 // 30% power
-#define POWER_MIN 0.3
+#define POWER_MIN_PCT 40
 #define POWER_LINEAR_RANGE 30
+#define POWER_MIN (256 * POWER_MIN_PCT / 100)
+#define POWER_LINEAR_FACTOR (256 * (100 - POWER_MIN_PCT) / 100 / POWER_LINEAR_RANGE)
+
 #endif // __FAN_H
