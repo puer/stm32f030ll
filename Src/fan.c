@@ -100,6 +100,8 @@ void qsort(uint16_t a[], int lo0, int hi0)
     return;
 }
 
+static uint8_t startup = 0;
+
 int FAN_Adjust_PWM(void)
 {
     static uint16_t print_throttle = 0;
@@ -161,21 +163,39 @@ int FAN_Adjust_PWM(void)
         _write(0, (char *)&set, sizeof(set));
         _write(0, (char *)&ave[1], sizeof(ave[1]));
         // printf("A");
+
+        startup = 0;
+    }
+
+    if (startup == 1)
+    {
+        // skip adj
+        return SUCCESS;
     }
 
     if (ntc > set)
     {
         // adj 77 is base vale of 30% power of fan (256 * 30% = 77).
+        // B8025B24H
         // 256 * 0.7 / 30, linear in 30 celsius
         // uint16_t power = (ntc - set) * (256 * (1 - POWER_MIN) / POWER_LINEAR_RANGE) + 256 * POWER_MIN;
         // elimate float computation
-        uint16_t power = (ntc - set) * 128 / 30 + 128;
+        uint16_t power = (ntc - set) * 6 + 102;
         if (power > 255)
         {
             power = 255;
         }
 
-        LL_TIM_OC_SetCompareCH1(TIM3, power);
+        if (LL_TIM_OC_GetCompareCH1(TIM3) == 0)
+        {
+            LL_TIM_OC_SetCompareCH1(TIM3, 255);
+            //full speed start up
+            startup = 1;
+        }
+        else
+        {
+            LL_TIM_OC_SetCompareCH1(TIM3, power);
+        }
     }
     else if (set - 5 > ntc)
     {
